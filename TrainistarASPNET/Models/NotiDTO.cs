@@ -1,5 +1,4 @@
-﻿using System;
-namespace TrainistarASPNET.Models
+﻿namespace TrainistarASPNET.Models
 {
     public class NotiDTO
     {

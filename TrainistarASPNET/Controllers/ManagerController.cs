@@ -1,11 +1,10 @@
-﻿using TrainistarASPNET.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using TrainistarASPNET.Models;
 
 namespace TrainistarASPNET.Controllers
 {
@@ -33,7 +32,7 @@ namespace TrainistarASPNET.Controllers
             //Tạo con reader data mysql
             MySqlDataReader reader;
             //Gọi connect tới mysql
-            using(MySqlConnection con=new MySqlConnection(data))
+            using (MySqlConnection con = new MySqlConnection(data))
             {
                 //Mở connection
                 con.Open();
@@ -86,13 +85,14 @@ namespace TrainistarASPNET.Controllers
 
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 response.code = "-1";
                 response.message = "User login failed, please check your account";
             }
             return new JsonResult(response);
         }
 
-        
+
     }
 }

@@ -1,10 +1,10 @@
-﻿using TrainistarASPNET.Models;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
-using Microsoft.AspNetCore.Authorization;
+using TrainistarASPNET.Models;
 
 namespace TrainistarASPNET.Controllers
 {
@@ -141,7 +141,7 @@ namespace TrainistarASPNET.Controllers
         [Route("mark/{idstudent}/{idcourse}")]
         [HttpGet]
         [Authorize(Policy = Policies.Admin)]
-        public JsonResult getMarkofCourse(string idstudent,string idcourse)
+        public JsonResult getMarkofCourse(string idstudent, string idcourse)
         {
             string query = @"select course.idCourse, course.nameCourse, course_student.mark from course_student
             join course on course.idCourse=course_student.idCourse

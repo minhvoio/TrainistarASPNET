@@ -1,10 +1,10 @@
-using TrainistarASPNET.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
-using Microsoft.AspNetCore.Authorization;
+using TrainistarASPNET.Models;
 
 namespace TrainistarASPNET.Controllers
 {
@@ -74,7 +74,7 @@ namespace TrainistarASPNET.Controllers
                 response.code = "-1";
                 response.message = "Delete user failed";
             }
-            
+
             return new JsonResult(response);
         }
 
@@ -138,22 +138,22 @@ namespace TrainistarASPNET.Controllers
             try
             {
                 using (MySqlConnection con = new MySqlConnection(data))
-            {
-                con.Open();
-
-                using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@username", user.username);
-                    cmd.Parameters.AddWithValue("@password", user.password);
-                    reader = cmd.ExecuteReader();
-                    table.Load(reader);
-                    response.role = table.Rows[0][8].ToString();
-                    response.name = table.Rows[0][3].ToString() + " " + table.Rows[0][4].ToString();
-                    reader.Close();
-                    con.Close();
+                    con.Open();
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@username", user.username);
+                        cmd.Parameters.AddWithValue("@password", user.password);
+                        reader = cmd.ExecuteReader();
+                        table.Load(reader);
+                        response.role = table.Rows[0][8].ToString();
+                        response.name = table.Rows[0][3].ToString() + " " + table.Rows[0][4].ToString();
+                        reader.Close();
+                        con.Close();
+                    }
                 }
-            }
-            
+
                 if (table.Rows[0][0].ToString() != null)
                 {
                     response.code = "1";
@@ -214,7 +214,7 @@ namespace TrainistarASPNET.Controllers
         [Route("{username}")]
         [HttpPatch]
         [Authorize(Policy = Policies.Admin)]
-        public JsonResult UpdateUser(string username,[FromBody]UserDTO user)
+        public JsonResult UpdateUser(string username, [FromBody] UserDTO user)
         {
             string query = @"update user_ set
             password=@password,
@@ -230,29 +230,29 @@ namespace TrainistarASPNET.Controllers
             MySqlDataReader reader;
             response.code = "1";
             response.message = "Update succeeded";
-            
-                using (MySqlConnection con = new MySqlConnection(data))
-                {
-                    con.Open();
 
-                    using (MySqlCommand cmd = new MySqlCommand(query, con))
-                    {   
-                        cmd.Parameters.AddWithValue("@password", user.password);
-                        cmd.Parameters.AddWithValue("@firstname", user.firstName);
-                        cmd.Parameters.AddWithValue("@lastname", user.lastName);
-                        cmd.Parameters.AddWithValue("@email", user.email);
-                        cmd.Parameters.AddWithValue("@phonenumber", user.phoneNumber);
-                        cmd.Parameters.AddWithValue("@gender", user.gender);
-                        cmd.Parameters.AddWithValue("@typeuser", user.typeUser);
-                        cmd.Parameters.AddWithValue("@username", username);
-                        reader = cmd.ExecuteReader();
-                        table.Load(reader);
-                        reader.Close();
-                        con.Close();
-                    }
+            using (MySqlConnection con = new MySqlConnection(data))
+            {
+                con.Open();
+
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@password", user.password);
+                    cmd.Parameters.AddWithValue("@firstname", user.firstName);
+                    cmd.Parameters.AddWithValue("@lastname", user.lastName);
+                    cmd.Parameters.AddWithValue("@email", user.email);
+                    cmd.Parameters.AddWithValue("@phonenumber", user.phoneNumber);
+                    cmd.Parameters.AddWithValue("@gender", user.gender);
+                    cmd.Parameters.AddWithValue("@typeuser", user.typeUser);
+                    cmd.Parameters.AddWithValue("@username", username);
+                    reader = cmd.ExecuteReader();
+                    table.Load(reader);
+                    reader.Close();
+                    con.Close();
                 }
+            }
             return new JsonResult(response);
         }
-        
+
     }
 }

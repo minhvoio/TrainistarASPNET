@@ -1,12 +1,10 @@
-﻿using TrainistarASPNET.Models;
-using Google.Protobuf;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Authorization;
+using TrainistarASPNET.Models;
 
 namespace TrainistarASPNET.Controllers
 {
@@ -40,8 +38,8 @@ namespace TrainistarASPNET.Controllers
                     con.Close();
                 }
             }
-            int temp=Int32.Parse(courseId)+1;
-            courseId=temp.ToString();
+            int temp = Int32.Parse(courseId) + 1;
+            courseId = temp.ToString();
             return courseId;
         }
 
@@ -77,7 +75,7 @@ namespace TrainistarASPNET.Controllers
             DataTable table = new DataTable();
             string data = _configuration.GetConnectionString("DBConnect");
             MySqlDataReader reader;
-            name="%"+name+"%";
+            name = "%" + name + "%";
             using (MySqlConnection con = new MySqlConnection(data))
             {
                 con.Open();
@@ -118,7 +116,8 @@ namespace TrainistarASPNET.Controllers
         [Route("createcourse")]
         [HttpPost]
         [Authorize(Policy = Policies.Admin)]
-        public JsonResult createCourse(CourseDTO course) {
+        public JsonResult createCourse(CourseDTO course)
+        {
             string query = @"insert into Course values (
             @idCourse,            
             @idTeacher,
@@ -140,7 +139,7 @@ namespace TrainistarASPNET.Controllers
 
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
-                        
+
                         course.idCourse = getNextCourseId();
                         cmd.Parameters.AddWithValue("@idCourse", course.idCourse);
                         cmd.Parameters.AddWithValue("@idTeacher", course.idTeacher);
@@ -170,7 +169,7 @@ namespace TrainistarASPNET.Controllers
         [Route("updatecourse/{id}")]
         [HttpPatch]
         [Authorize(Policy = Policies.Admin)]
-        public JsonResult updateCourse(string id, [FromBody]CourseDTO course)
+        public JsonResult updateCourse(string id, [FromBody] CourseDTO course)
         {
             string query = @"update Course set
             idTeacher=@idteacher,
@@ -188,27 +187,27 @@ namespace TrainistarASPNET.Controllers
             response.message = "Update succeeded";
 
             using (MySqlConnection con = new MySqlConnection(data))
+            {
+                con.Open();
+
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
-                    con.Open();
 
-                    using (MySqlCommand cmd = new MySqlCommand(query, con))
-                    {
-
-                        course.idCourse =id;
-                        cmd.Parameters.AddWithValue("@idcourse", course.idCourse);
-                        cmd.Parameters.AddWithValue("@idteacher", course.idTeacher);
-                        cmd.Parameters.AddWithValue("@idmanager", course.idManager);
-                        cmd.Parameters.AddWithValue("@namecourse", course.nameCourse);
-                        cmd.Parameters.AddWithValue("@description", course.description);
-                        cmd.Parameters.AddWithValue("@idquestionbank", course.idQuestionBank);
-                        cmd.Parameters.AddWithValue("@startdate", course.startDate);
-                        cmd.Parameters.AddWithValue("@finishdate", course.finishDate);
-                        reader = cmd.ExecuteReader();
-                        table.Load(reader);
-                        reader.Close();
-                        con.Close();
-                    }
+                    course.idCourse = id;
+                    cmd.Parameters.AddWithValue("@idcourse", course.idCourse);
+                    cmd.Parameters.AddWithValue("@idteacher", course.idTeacher);
+                    cmd.Parameters.AddWithValue("@idmanager", course.idManager);
+                    cmd.Parameters.AddWithValue("@namecourse", course.nameCourse);
+                    cmd.Parameters.AddWithValue("@description", course.description);
+                    cmd.Parameters.AddWithValue("@idquestionbank", course.idQuestionBank);
+                    cmd.Parameters.AddWithValue("@startdate", course.startDate);
+                    cmd.Parameters.AddWithValue("@finishdate", course.finishDate);
+                    reader = cmd.ExecuteReader();
+                    table.Load(reader);
+                    reader.Close();
+                    con.Close();
                 }
+            }
             return new JsonResult(course);
         }
 
@@ -246,5 +245,5 @@ namespace TrainistarASPNET.Controllers
             return new JsonResult(response);
         }
     }
-    
+
 }

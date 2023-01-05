@@ -1,13 +1,10 @@
-﻿using TrainistarASPNET.Models;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+using TrainistarASPNET.Models;
 
 namespace TrainistarASPNET.Controllers
 {
@@ -103,7 +100,7 @@ namespace TrainistarASPNET.Controllers
                     //Dóng connection
                     reader.Close();
                     con.Close();
-                   
+
                 }
             }
             //Paste data từ table về dưới dạng json
