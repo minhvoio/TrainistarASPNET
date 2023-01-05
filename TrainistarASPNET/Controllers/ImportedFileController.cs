@@ -20,6 +20,7 @@ namespace TrainistarASPNET.Controllers
         }
         [Route("create")]
         [HttpPost]
+        [Authorize(Policy = Policies.Trainer)]
         public JsonResult AddImportedFile(ImportedFileDTO importedfile)
         {
             //Tạo câu query
@@ -64,6 +65,7 @@ namespace TrainistarASPNET.Controllers
         }
         [Route("all/{idCourse}")]
         [HttpGet]
+        [Authorize(Policy = Policies.Student)]
         public JsonResult getAllFileOfCourse(string idCourse)
         {
             //Tạo câu query

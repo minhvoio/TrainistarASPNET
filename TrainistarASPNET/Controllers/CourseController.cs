@@ -68,6 +68,7 @@ namespace TrainistarASPNET.Controllers
 
         [Route("all/{idTeacher}")]
         [HttpGet]
+        [Authorize(Policy = Policies.Trainer)]
         public JsonResult getAllCourseOfTeacher(string idTeacher)
         {
             string query = @"select * from course where idTeacher=@idTeacher )";
