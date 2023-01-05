@@ -66,6 +66,29 @@ namespace TrainistarASPNET.Controllers
             return new JsonResult(table);
         }
 
+        [Route("all/{idTeacher}")]
+        [HttpGet]
+        public JsonResult getAllCourseOfTeacher(string idTeacher)
+        {
+            string query = @"select * from course where idTeacher=@idTeacher )";
+            DataTable table = new DataTable();
+            string data = _configuration.GetConnectionString("DBConnect");
+            MySqlDataReader reader;
+            using (MySqlConnection con = new MySqlConnection(data))
+            {
+                con.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@idTeacher", idTeacher);
+                    reader = cmd.ExecuteReader();
+                    table.Load(reader);
+                    reader.Close();
+                    con.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
         [Route("searchname/{name}")]
         [HttpGet]
         [Authorize(Policy = Policies.Student)]
