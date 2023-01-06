@@ -16,6 +16,8 @@ namespace TrainistarASPNET.Controllers
     [Route("[controller]")]
     public class AuthController : ControllerBase
     {
+        BaseResponse baseResponse = new BaseResponse();
+
         private readonly IConfiguration _config;
 
         private List<Auth> appUsers = new List<Auth>
@@ -33,21 +35,31 @@ namespace TrainistarASPNET.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] Auth login)
+        public BaseResponse Login([FromBody] Auth login)
         {
             IActionResult response = Unauthorized();
             Auth user = AuthenticateUser(login);
-            if (user != null)
-            {
+
+            if (user != null) {
+
                 var tokenString = GenerateJWTToken(user);
                 response = Ok(new
                 {
                     token = tokenString,
                     userDetails = user,
                 });
+                baseResponse.code = "1";
+                baseResponse.message = "Login succeeded";
+                baseResponse.tokenResult = response;
+                return baseResponse;
             }
-            else response = Content("Not Authenticated");
-            return response;
+
+            baseResponse.code = "-1";
+            baseResponse.message = "User login failed, please check your account";
+            return baseResponse;
+
+
+            //return new JsonResult(baseResponse);
         }
 
         Auth AuthenticateUser(Auth loginCredentials)

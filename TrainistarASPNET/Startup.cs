@@ -13,6 +13,7 @@ namespace TrainistarASPNET
 {
     public class Startup
     {
+        BaseResponse response = new BaseResponse();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -71,7 +72,7 @@ namespace TrainistarASPNET
             app.UseRouting();
 
             app.UseAuthentication();
-
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
