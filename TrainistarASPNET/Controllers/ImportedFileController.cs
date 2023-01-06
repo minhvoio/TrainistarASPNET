@@ -45,7 +45,7 @@ namespace TrainistarASPNET.Controllers
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("@idFile", importedfile.idFile);
-                        cmd.Parameters.AddWithValue("@link",importedfile.link);
+                        cmd.Parameters.AddWithValue("@link", importedfile.link);
                         cmd.Parameters.AddWithValue("@idCourse", importedfile.idCourse);
                         reader = cmd.ExecuteReader();
                         table.Load(reader);

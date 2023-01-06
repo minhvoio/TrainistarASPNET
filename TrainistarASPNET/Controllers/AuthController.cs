@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace TrainistarASPNET.Controllers
     public class AuthController : ControllerBase
     {
         BaseResponse baseResponse = new BaseResponse();
+        //Dictionary<String, Auth> tokenUserMap = new Dictionary<string, Auth>();
 
         private readonly IConfiguration _config;
 
@@ -40,14 +42,15 @@ namespace TrainistarASPNET.Controllers
             IActionResult response = Unauthorized();
             Auth user = AuthenticateUser(login);
 
-            if (user != null) {
-
+            if (user != null)
+            {
                 var tokenString = GenerateJWTToken(user);
                 response = Ok(new
                 {
                     token = tokenString,
                     userDetails = user,
                 });
+
                 baseResponse.code = "1";
                 baseResponse.message = "Login succeeded";
                 baseResponse.tokenResult = response;
@@ -57,9 +60,6 @@ namespace TrainistarASPNET.Controllers
             baseResponse.code = "-1";
             baseResponse.message = "User login failed, please check your account";
             return baseResponse;
-
-
-            //return new JsonResult(baseResponse);
         }
 
         Auth AuthenticateUser(Auth loginCredentials)
@@ -85,10 +85,48 @@ namespace TrainistarASPNET.Controllers
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(43200),
                 signingCredentials: credentials
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [Route("me")]
+        [AllowAnonymous]
+        [HttpGet]
+        public BaseResponse validateUserByToken ()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            String jwtBearer = HttpContext.Request.Headers["Authorization"];
+            String token = jwtBearer.Substring(7);
+            
+            try { 
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = _config["Jwt:Issuer"],
+                        ValidAudience = _config["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"])),
+                        ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+                var jwtToken = (JwtSecurityToken)validatedToken;
+
+                if (jwtToken != null)
+                {
+                    baseResponse.code = "1";
+                    baseResponse.message = "Valid token";
+                    baseResponse.tokenResult = new JsonResult(jwtToken.Payload);
+                }
+
+            } catch (Exception ex)
+            {
+                baseResponse.code = "-1";
+                baseResponse.message = "Invalid token";
+            }
+            return baseResponse;
         }
     }
 }
