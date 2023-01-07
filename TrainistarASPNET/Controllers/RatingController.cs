@@ -82,7 +82,7 @@ namespace TrainistarASPNET.Controllers
                 con.Open();
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@idTeacher", idCourse);
+                    cmd.Parameters.AddWithValue("@idCourse", idCourse);
                     reader = cmd.ExecuteReader();
                     table.Load(reader);
                     reader.Close();
