@@ -65,9 +65,10 @@ namespace TrainistarASPNET.Controllers
         [HttpGet]
         public JsonResult getCertWithStudentId(String idStudent)
         {
-            string query = @"select SC.idCertificate, SC.idStudent, C.nameCertificate 
-            from trainistar.Student_Certificate SC 
-            join trainistar.Certificate C on SC.idCertificate=C.idCertificate 
+            string query = @"select SC.idCertificate, SC.idStudent,U.firstName,U.lastName,U.gender, C.nameCertificate
+            from Student_Certificate SC 
+            join Certificate C on SC.idCertificate=C.idCertificate 
+            join User_ U on U.idUser=SC.idStudent
             where SC.idStudent=@idStudent";
             //Hứng data query về table
             DataTable table = new DataTable();
@@ -84,7 +85,7 @@ namespace TrainistarASPNET.Controllers
 
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
-                        cmd.Parameters.AddWithValue("@id", idStudent);
+                        cmd.Parameters.AddWithValue("@idStudent", idStudent);
                         reader = cmd.ExecuteReader();
                         table.Load(reader);
                         reader.Close();
