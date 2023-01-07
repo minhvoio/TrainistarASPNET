@@ -275,6 +275,7 @@ namespace TrainistarASPNET.Controllers
         }
         [Route("student/{idCourse}")]
         [HttpGet]
+        [Authorize(Policy = Policies.Trainer)]
         public JsonResult getAllRatingOfCourse(string idCourse)
         {
             string query = @"select U.idUser,U.firstName,U.lastName,U.email,U.phoneNumber,U.gender 
