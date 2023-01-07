@@ -63,7 +63,7 @@ namespace TrainistarASPNET.Controllers
         }
         [Route("get/{idStudent}")]
         [HttpGet]
-        public JsonResult getCertWithStudentId(String id)
+        public JsonResult getCertWithStudentId(String idStudent)
         {
             string query = @"select SC.idCertificate, SC.idStudent, C.nameCertificate 
             from trainistar.Student_Certificate SC 
@@ -84,7 +84,7 @@ namespace TrainistarASPNET.Controllers
 
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
-                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.Parameters.AddWithValue("@id", idStudent);
                         reader = cmd.ExecuteReader();
                         table.Load(reader);
                         reader.Close();

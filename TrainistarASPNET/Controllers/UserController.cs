@@ -273,6 +273,30 @@ namespace TrainistarASPNET.Controllers
             }
             return new JsonResult(response);
         }
-
+        [Route("student/{idCourse}")]
+        [HttpGet]
+        public JsonResult getAllRatingOfCourse(string idCourse)
+        {
+            string query = @"select U.idUser,U.firstName,U.lastName,U.email,U.phoneNumber,U.gender 
+            from User_ U 
+            join Course_Student CS on U.idUser = CS.idStudent 
+            where CS.idCourse= @idCourse";
+            DataTable table = new DataTable();
+            string data = _configuration.GetConnectionString("DBConnect");
+            MySqlDataReader reader;
+            using (MySqlConnection con = new MySqlConnection(data))
+            {
+                con.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@idCourse", idCourse);
+                    reader = cmd.ExecuteReader();
+                    table.Load(reader);
+                    reader.Close();
+                    con.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
     }
 }
