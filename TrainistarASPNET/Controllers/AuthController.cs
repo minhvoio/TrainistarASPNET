@@ -24,10 +24,10 @@ namespace TrainistarASPNET.Controllers
 
         private List<Auth> appUsers = new List<Auth>
         {
-            new Auth {  FullName = "Minh Vo",  UserName = "admin", Password = "admin", UserRole = "Admin" },
-            new Auth {  FullName = "Gus Fring",  UserName = "manager", Password = "manager", UserRole = "Manager" },
-            new Auth {  FullName = "Heisenberg",  UserName = "trainer", Password = "trainer", UserRole = "Trainer" },
-            new Auth {  FullName = "Wednesday",  UserName = "student", Password = "student", UserRole = "Student" }
+            new Auth {  UserID = "1", FullName = "Minh Vo",  UserName = "admin", Password = "admin", UserRole = "Admin" },
+            new Auth {  UserID = "2", FullName = "Thomasin Coppard",  UserName = "manager7", Password = "manager7", UserRole = "Manager" },
+            new Auth {  UserID = "3", FullName = "Jana Train",  UserName = "jtrain2", Password = "jtrain2", UserRole = "Trainer" },
+            new Auth {  UserID = "79", FullName = "Gipsy Kidsley",  UserName = "gkidsley26", Password = "gkidsley26", UserRole = "Student" }
         };
 
         public AuthController(IConfiguration config)
