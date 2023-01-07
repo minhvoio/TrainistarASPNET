@@ -71,7 +71,7 @@ namespace TrainistarASPNET.Controllers
         [Authorize(Policy = Policies.Trainer)]
         public JsonResult getAllCourseOfTeacher(string idTeacher)
         {
-            string query = @"select * from course where idTeacher=@idTeacher )";
+            string query = @"select * from course where idTeacher=@idTeacher";
             DataTable table = new DataTable();
             string data = _configuration.GetConnectionString("DBConnect");
             MySqlDataReader reader;

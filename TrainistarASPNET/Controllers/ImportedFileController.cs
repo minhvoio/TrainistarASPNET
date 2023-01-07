@@ -71,7 +71,7 @@ namespace TrainistarASPNET.Controllers
             //Tạo câu query
             string query = @"select *
             from ImportedFile
-            where ImportedFile.idCourse = @idCourse";
+            where idCourse = @idCourse";
             //Hứng data query về table
             DataTable table = new DataTable();
             //Lấy chuỗi string connect vào db (setup ở appsettings.json)
@@ -86,6 +86,7 @@ namespace TrainistarASPNET.Controllers
                 //Execute script mysql
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
+                    cmd.Parameters.AddWithValue("@idCourse", idCourse);
                     reader = cmd.ExecuteReader();
                     //Load data về table
                     table.Load(reader);
