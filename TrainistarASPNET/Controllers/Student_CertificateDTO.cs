@@ -65,7 +65,10 @@ namespace TrainistarASPNET.Controllers
         [HttpGet]
         public JsonResult getCertWithStudentId(String id)
         {
-            string query = @"select * from student_certificate left join certificate on student_certificate.idCertificate=certificate.idCertificate where idStudent=@id";
+            string query = @"select SC.idCertificate, SC.idStudent, C.nameCertificate 
+            from trainistar.Student_Certificate SC 
+            join trainistar.Certificate C on SC.idCertificate=C.idCertificate 
+            where SC.idStudent=@idStudent";
             //Hứng data query về table
             DataTable table = new DataTable();
             //Lấy chuỗi string connect vào db (setup ở appsettings.json)

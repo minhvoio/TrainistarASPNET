@@ -65,37 +65,33 @@ namespace TrainistarASPNET.Controllers
             response.message = "Create succeeded";
             return new JsonResult(response);
         }
-        [Route("all")]
+        
+        [Route("all/{idCourse}")]
         [HttpGet]
-        [Authorize(Policy = Policies.Manager)]
-        public JsonResult getAllRating()
+        public JsonResult getAllRatingOfCourse(string idCourse)
         {
-            //Tạo câu query
-            string query = @"select * from Rating";
-            //Hứng data query về table
+            string query = @"select R.idRating, R.rating, R.idCourse, R.idStudent, U.firstName, U.lastName, U.gender 
+            from Rating R 
+            join User_ U on R.idStudent=U.idUser 
+            where R.idCourse = @idCourse";
             DataTable table = new DataTable();
-            //Lấy chuỗi string connect vào db (setup ở appsettings.json)
             string data = _configuration.GetConnectionString("DBConnect");
-            //Tạo con reader data mysql
             MySqlDataReader reader;
-            //Gọi connect tới mysql
             using (MySqlConnection con = new MySqlConnection(data))
             {
-                //Mở connection
                 con.Open();
-                //Execute script mysql
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
+                    cmd.Parameters.AddWithValue("@idTeacher", idCourse);
                     reader = cmd.ExecuteReader();
-                    //Load data về table
                     table.Load(reader);
-                    //Dóng connection
                     reader.Close();
                     con.Close();
                 }
             }
-            //Paste data từ table về dưới dạng json
             return new JsonResult(table);
         }
     }
+
+    
 }
