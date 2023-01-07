@@ -190,7 +190,7 @@ namespace TrainistarASPNET.Controllers
         }
         [Route("create")]
         [HttpPost]
-        public JsonResult Login(UserDTO user)
+        public JsonResult SignUp(UserDTO user)
         {
             string query = @"insert into user_ values (@iduser,@username,@password,@firstname,@lastname,@email,@phonenumber,@gender,@typeuser)";
             DataTable table = new DataTable();
