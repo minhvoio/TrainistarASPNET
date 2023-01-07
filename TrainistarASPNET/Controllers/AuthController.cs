@@ -180,6 +180,7 @@ namespace TrainistarASPNET.Controllers
 
             var claims = new[]
             {
+                new Claim("userId", userInfo.UserID),
                 new Claim(JwtRegisteredClaimNames.Sub, userInfo.UserName),
                 new Claim("fullName", userInfo.FullName.ToString()),
                 new Claim("role",userInfo.UserRole),
