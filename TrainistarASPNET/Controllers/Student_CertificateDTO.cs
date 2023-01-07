@@ -61,6 +61,42 @@ namespace TrainistarASPNET.Controllers
             response.message = "Create succeeded";
             return new JsonResult(response);
         }
+        [Route("get/{idStudent}")]
+        [HttpGet]
+        public JsonResult getCertWithStudentId(String id)
+        {
+            string query = @"select * from student_certificate left join certificate on student_certificate.idCertificate=certificate.idCertificate where idStudent=@id";
+            //Hứng data query về table
+            DataTable table = new DataTable();
+            //Lấy chuỗi string connect vào db (setup ở appsettings.json)
+            string data = _configuration.GetConnectionString("DBConnect");
+            //Tạo con reader data mysql
+            MySqlDataReader reader;
+            //Gọi connect tới mysql
+            try
+            {
+                using (MySqlConnection con = new MySqlConnection(data))
+                {
+                    con.Open();
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        reader = cmd.ExecuteReader();
+                        table.Load(reader);
+                        reader.Close();
+                        con.Close();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                response.code = "-1";
+                response.message = "Get failed";
+                return new JsonResult(response);
+            }
+            return new JsonResult(table);
+        }
     }
 }
 
