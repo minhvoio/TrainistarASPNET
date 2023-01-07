@@ -25,32 +25,6 @@ namespace TrainistarASPNET.Controllers
 
         private readonly IConfiguration _config;
 
-
-        private List<Auth> appUsers = new List<Auth>
-        {
-            new Auth {  UserID = "1", FullName = "Minh Vo",  UserName = "admin", Password = "XzJm*ui4", UserRole = "Admin" },
-            new Auth {  UserID = "1", FullName = "Doris Hrycek",  UserName = "manager1", Password = "HFlhSRhX", UserRole = "Manager" },
-            new Auth {  UserID = "2", FullName = "Boyd Windas",  UserName = "manager2", Password = "0mzifbxRdrZf", UserRole = "Manager" },
-            new Auth {  UserID = "3", FullName = "Dayle Lenihan",  UserName = "manager3", Password = "Sw5I3AkVDd", UserRole = "Manager" },
-            new Auth {  UserID = "4", FullName = "Steffi Renn",  UserName = "manager4", Password = "k5rFAPXz", UserRole = "Manager" },
-            new Auth {  UserID = "5", FullName = "Robb Blois",  UserName = "manager5", Password = "9tkVpEw", UserRole = "Manager" },
-            new Auth {  UserID = "6", FullName = "Aurelea Battey",  UserName = "manager6", Password = "WXCgbRS6u51j", UserRole = "Manager" },
-            new Auth {  UserID = "7", FullName = "Thomasin Coppard",  UserName = "manager7", Password = "9x0nFXMryao", UserRole = "Manager" },
-            new Auth {  UserID = "8", FullName = "Benita Adenet",  UserName = "manager8", Password = "YjXXzkfNK", UserRole = "Manager" },
-            new Auth {  UserID = "9", FullName = "Robinet Reeves",  UserName = "manager9", Password = "JW5yGMzW1Fen", UserRole = "Manager" },
-            new Auth {  UserID = "10", FullName = "Webster Hayden",  UserName = "manager10", Password = "EffXaQ", UserRole = "Manager" },
-            new Auth {  UserID = "11", FullName = "Bogart Barrick",  UserName = "manager11", Password = "SPIsZo6zRA", UserRole = "Manager" },
-            new Auth {  UserID = "12", FullName = "Jillene Morrison",  UserName = "manager12", Password = "2MBKSs1", UserRole = "Manager" },
-            new Auth {  UserID = "13", FullName = "Layton Garbutt",  UserName = "manager13", Password = "kEDOUMEBvR", UserRole = "Manager" },
-            new Auth {  UserID = "14", FullName = "Scarface MacTeague",  UserName = "manager14", Password = "Gh8lOsvxsI5", UserRole = "Manager" },
-            new Auth {  UserID = "15", FullName = "Nathanil Drinkall",  UserName = "manager15", Password = "DIulZ81gPYe", UserRole = "Manager" },
-            new Auth {  UserID = "16", FullName = "Bone Idell",  UserName = "manager16", Password = "a9Q1J27c", UserRole = "Manager" },
-            new Auth {  UserID = "17", FullName = "Timothee Bottinelli",  UserName = "manager17", Password = "tKAq4cWW", UserRole = "Manager" },
-            new Auth {  UserID = "18", FullName = "Jeramie Reside",  UserName = "manager18", Password = "ZntN0nJGmZN", UserRole = "Manager" },
-            new Auth {  UserID = "19", FullName = "Luelle Burry",  UserName = "manager19", Password = "gWRjZtdJ9", UserRole = "Manager" },
-            new Auth {  UserID = "20", FullName = "Darn Kneebone",  UserName = "manager20", Password = "SgZJPFPDk", UserRole = "Manager" },
-        };
-
         public AuthController(IConfiguration config)
         {
             _config = config;
@@ -73,32 +47,126 @@ namespace TrainistarASPNET.Controllers
             }
         }
 
-        [Route("admin-manager")]
+        [Route("admin")]
         [HttpPost]
         [AllowAnonymous]
-        public BaseResponse SigninAdmin([FromBody] Auth login)
+        public JsonResult SigninAdmin([FromBody] Auth signin)
         {
             IActionResult response = Unauthorized();
-            Auth user = AuthenticateUser(login);
+            string query = @"select * from Admin 
+            where userName=@username and password=@password
+            ";
 
-            if (user != null)
+            DataTable table = new DataTable();
+            string data = _config.GetConnectionString("DBConnect");
+            MySqlDataReader reader;
+
+            try
             {
-                var tokenString = GenerateJWTToken(user);
-                response = Ok(new
+                using (MySqlConnection con = new MySqlConnection(data))
                 {
-                    token = tokenString,
-                    userDetails = user,
-                });
+                    con.Open();
 
-                baseResponse.code = "1";
-                baseResponse.message = "Login succeeded";
-                baseResponse.tokenResult = response;
-                return baseResponse;
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@username", signin.UserName);
+                        cmd.Parameters.AddWithValue("@password", signin.Password);
+                        reader = cmd.ExecuteReader();
+                        table.Load(reader);
+
+                        signin.UserRole = "Manager";
+
+                        signin.UserID = table.Rows[0][0].ToString();
+                        signin.FullName = table.Rows[0][3].ToString();
+
+                        reader.Close();
+                        con.Close();
+                    }
+                }
+
+                if (table.Rows[0][0].ToString() != null)
+                {
+                    var tokenString = GenerateJWTToken(signin);
+                    response = Ok(new
+                    {
+                        token = tokenString,
+                        userDetails = signin,
+                    });
+
+                    baseResponse.code = "1";
+                    baseResponse.message = "Login succeeded";
+                    baseResponse.tokenResult = response;
+                    return new JsonResult(baseResponse);
+
+                }
             }
+            catch (Exception ex)
+            {
+                baseResponse.code = "-1";
+                baseResponse.message = "User login failed, please check your account";
+            }
+            return new JsonResult(baseResponse);
+        }
 
-            baseResponse.code = "-1";
-            baseResponse.message = "User login failed, please check your account";
-            return baseResponse;
+        [Route("manager")]
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult SigninManager([FromBody] Auth signin)
+        {
+            IActionResult response = Unauthorized();
+            string query = @"select * from Manager 
+            where userName=@username and password=@password
+            ";
+
+            DataTable table = new DataTable();
+            string data = _config.GetConnectionString("DBConnect");
+            MySqlDataReader reader;
+
+            try
+            {
+                using (MySqlConnection con = new MySqlConnection(data))
+                {
+                    con.Open();
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@username", signin.UserName);
+                        cmd.Parameters.AddWithValue("@password", signin.Password);
+                        reader = cmd.ExecuteReader();
+                        table.Load(reader);
+
+                        signin.UserRole = "Manager";
+
+                        signin.UserID = table.Rows[0][0].ToString();
+                        signin.FullName = table.Rows[0][3].ToString();
+
+                        reader.Close();
+                        con.Close();
+                    }
+                }
+
+                if (table.Rows[0][0].ToString() != null)
+                {
+                    var tokenString = GenerateJWTToken(signin);
+                    response = Ok(new
+                    {
+                        token = tokenString,
+                        userDetails = signin,
+                    });
+
+                    baseResponse.code = "1";
+                    baseResponse.message = "Login succeeded";
+                    baseResponse.tokenResult = response;
+                    return new JsonResult(baseResponse);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                baseResponse.code = "-1";
+                baseResponse.message = "User login failed, please check your account";
+            }
+            return new JsonResult(baseResponse);
         }
 
         [Route("trainer-student")]
@@ -165,14 +233,7 @@ namespace TrainistarASPNET.Controllers
             }
             return new JsonResult(baseResponse);
         }
-
-
-        Auth AuthenticateUser(Auth loginCredentials)
-        {
-            Auth user = appUsers.SingleOrDefault(x => x.UserName == loginCredentials.UserName && x.Password == loginCredentials.Password);
-            return user;
-        }
-
+                
         string GenerateJWTToken(Auth userInfo)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
